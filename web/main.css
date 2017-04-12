@@ -28,7 +28,7 @@ body {
 .positive-class {
   color: red;
 }
-#image-panel {
+#image_panel {
   border: 1px solid black;
   width: 320px;
   height: 320px;
