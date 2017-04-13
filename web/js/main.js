@@ -1,3 +1,5 @@
+Math.seedrandom(6831);
+
 // ------------------------------------------------------------------------------
 // Global variables
 
@@ -26,37 +28,32 @@ instructions.traditional = `<ul>
 
 $(document).ready(function() {
   initialize();
-  ids = fetchImages();
-  c.ids = ids; // TODO
-});
-
-$(document).on("click", "#btn_play", function(evt) {
-  $( "#btn_play" ).removeClass("btn-enabled").addClass("btn-disabled");
-
-  // add countdown animation :)
-  myCountdown(4, function(){
-    ids = c.ids; // TODO
-    if (c.interface == "rsvp") {
-      playImagesRsvp(ids);
-    } else {
-      playImagesTraditional(ids);
-    }
-  });
+  prepareTask();
 });
 
 function initialize(){
-  c.playing     = false;
-  c.links       = links;
-  c.interface   = "rsvp"; //"traditional";
-  c.task        = "easy";
-  c.task_t      = 500; // ms between images
-  c.task_length = 10; // number of images in task
-  c.task_f_mean = 10;  // mean of number of positive examples to show, per 100
-  c.task_f_std  = 2;   // std of number of positive examples to show
+  c.playing         = false;
+  c.links           = links;
+  c.interface_list  = ["traditional", "rsvp"];
+  c.task_list       = ["easy", "medium", "hard"];
+  c.task_descriptions = {
+    positive : ["contains a dog", "contains a person on a motorcycle", "contains people eating breakfast"],
+    negative : ["does not contain a dog", "does not contain a person on a motorcycle", "does not contain people eating breakfast"]
+  }
+  c.interface_index = 0;
+  c.task_index      = 0;
 
-  // number of images that are positive examples, per 100
-  c.task_f      = randn_bm()*c.task_f_std + c.task_f_mean;
+  c.interface_order = _.shuffle(Array.apply(null, {length: c.interface_list.length}).map(Number.call, Number))
+  c.task_order      = _.shuffle(Array.apply(null, {length: c.task_list.length}).map(Number.call, Number))
 
+  c.interface       = c.interface_list[c.interface_order[c.interface_index]];
+  c.task            = c.task_list[c.task_order[c.task_index]];
+
+  c.task_t          = 500; // ms between images
+  c.task_t_end      = c.task_t*5; // ms to wait after last image before cleaning up
+  c.task_length     = 10; // number of images in task
+  c.task_f_mean     = 10;  // mean of number of positive examples to show, per 100
+  c.task_f_std      = 2;   // std of number of positive examples to show
   c.url = "http://web.mit.edu/micahs/www/rsvp/data";
 
   // user
@@ -64,6 +61,12 @@ function initialize(){
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
   });
+
+}
+
+function prepareTask(){
+  // number of images that are positive examples, per 100
+  c.task_f          = randn_bm()*c.task_f_std + c.task_f_mean;
 
   // instructions
   $("#instructions").empty();
@@ -73,7 +76,30 @@ function initialize(){
     $("#instructions").append(instructions.traditional);
   }
 
+  // objects
+
+  c.ids = fetchImages();
 }
+
+$(document).on("click", "#btn_play", function(evt) {
+  disableButton("btn_play");
+
+  // add countdown animation :)
+  // also allows images to load
+  myCountdown(4, function(){
+    if (c.interface == "rsvp") {
+      playImagesRsvp(c.ids);
+    } else {
+      playImagesTraditional(c.ids);
+    }
+  });
+});
+
+$(document).on("click", "#btn_next", function(evt) {
+  disableButton("btn_next");
+  prepareTask();
+  enableButton("btn_play");
+});
 
 // ------------------------------------------------------------------------------
 // Mess with images
@@ -146,20 +172,9 @@ function playImagesRsvp(ids){
     i += 1;
     if (i==c.task_length){
       c.playing = false;
+      setTimeout(cleanUpRsvp, c.task_t_end);
     }
   }, c.task_length, c.task_t);
-
-  // wait until done?
-  poll(function(){
-    return !c.playing;
-  }, c.task_length*c.task_t*1.25, c.task_t/2)
-  .then(function(){
-    // when done, flush log.
-    cleanUpRsvp();
-  })
-  .catch(function(){
-    console.log("timed out");
-  });
 }
 
 function playImagesTraditional(ids){
@@ -173,6 +188,7 @@ function cleanUpRsvp(){
     flushLog(log);
     clearImages();
     console.log("done");
+    prepareNextTask();
 }
 
 function cleanUpTraditional(){
@@ -180,8 +196,37 @@ function cleanUpTraditional(){
     flushLog(log);
     clearImages();
     console.log("done");
+    prepareNextTask();
 }
 
+function completeExperimentation(){
+  $("#btn_next").value("Done With Tasks");
+  $("#btn_next").off("click").on("click", function() {
+    window.location = "/survey.html?uuid=" + c.uuid;
+  });
+  enableButton("btn_next");
+
+}
+
+function prepareNextTask(){
+  if (c.task_index == (c.task_list.length - 1)){
+    // done with this task.
+    if (c.interface_index == (c.interface_list.length - 1)){
+      // done with everything.
+      completeExperimentation();
+      return
+    } else {
+      // next interface
+      c.interface_index += 1;
+      c.interface = c.interface_list[c.interface_order[c.interface_index]];
+    }
+  } else {
+    // next task
+    c.task_index += 1;
+    c.task = c.task_list[c.task_order[c.task_index]];
+  }
+  enableButton("btn_next");
+}
 
 function showImage(id){
   console.log("showing {0}".format(id));
@@ -265,4 +310,11 @@ function flushLog(log){
 
 function clearImages(){
   $( "#image_panel > img" ).remove();
+}
+
+function disableButton(id){
+  $( "#" + id ).removeClass("btn-enabled").addClass("btn-disabled");
+}
+function enableButton(id){
+  $( "#" + id ).removeClass("btn-disabled").addClass("btn-enabled");
 }
