@@ -1,5 +1,6 @@
 var c = {};
 var log = [];
+var last_id = "";
 
 $(document).ready(function() {
   initialize();
@@ -8,14 +9,18 @@ $(document).ready(function() {
 });
 
 $(document).on("click", "#btn_play", function(evt) {
-  console.log("about to play images");
   ids = c.ids; // TODO
   playImages(ids);
+});
+
+$(document).keypress(function(evt){
+  processKey(evt);
 });
 
 function initialize(){
   c.playing     = false;
   c.links       = links;
+  c.interface   = "rsvp";
   c.task        = "easy";
   c.task_t      = 100; // ms between images
   c.task_length = 100; // number of images in task
@@ -98,22 +103,34 @@ function playImages(ids){
   // set a timer to fire every `t` milleseconds
   // when timer fires, change src of image
   // at end, clear panel
+  c.playing = true;
   var i = 0;
   callNTimes(function() {
-    console.log("showing image {0}".format(ids[i]));
     showImage(ids[i]);
     i += 1;
+    if (i==c.task_length){
+      c.playing = false;
+    }
   }, c.task_length, c.task_t);
+
+  // wait until done?
+  poll(function(){return !c.playing;}, c.task_length*c.task_t*1.25, c.task_t/2)
+  .then(function(){flushLog(log);})
+  .catch(function(){console.log("timed out")});
 }
 
 function showImage(id){
-  $( "#image_panel > img" ).removeClass("image-visible").addClass("image-hidden");
+  if (last_id){
+    $( "#" + last_id).removeClass("image-visible").addClass("image-hidden");
+  }
   $( "#" + id).removeClass("image-hidden").addClass("image-visible");
+  last_id = id;
 
   timestamp = Date.now();
   log.push({
     "timestamp" : timestamp,
     "uuid"      : c.uuid,
+    "interface" : c.interface,
     "task"      : c.task,
     "source"    : "image",
     "id"        : id,
@@ -122,16 +139,19 @@ function showImage(id){
 }
 
 function processKey(evt){
-  value = evt.which;
-  timestamp = Date.now();
-  log.push({
-    "timestamp" : timestamp,
-    "uuid"      : c.uuid,
-    "task"      : c.task,
-    "source"    : "key",
-    "id"        : "",
-    "value"     : value
-  });
+  if (c.playing){
+    value = evt.which;
+    timestamp = Date.now();
+    log.push({
+      "timestamp" : timestamp,
+      "uuid"      : c.uuid,
+      "interface" : c.interface,
+      "task"      : c.task,
+      "source"    : "key",
+      "id"        : "",
+      "value"     : value
+    });
+  }
 }
 
 function processButton(evt){
@@ -140,11 +160,39 @@ function processButton(evt){
   log.push({
     "timestamp" : timestamp,
     "uuid"      : c.uuid,
+    "interface" : c.interface,
     "task"      : c.task,
     "source"    : "button",
     "id"        : id,
     "value"     : ""
   });
+}
+
+function flushLog(log){
+  differences = [];
+  last = 0;
+  for (let i=0; i<log.length; i++){
+    row = log[i];
+
+    differences.push(row.timestamp - last);
+    last = row.timestamp;
+
+    sendRapidCrowdsourcingLogFake(
+      row.timestamp,
+      row.uuid,
+      row.interface,
+      row.task,
+      row.source,
+      row.id,
+      row.value
+    );
+  }
+
+  // clear log
+  console.log(log);
+  // log.length = 0;
+  //
+  console.log(differences);
 }
 
 function clearImages(){
