@@ -10,7 +10,7 @@ var nextIndex = -1;
 var instructions = {};
 instructions.rsvp = `<ul>
   <li> A series of images will be rapidly shown to you after you click 'Play'. </li>
-  <li> After clicking 'Play', press <span class="positive-class positive-class-action">the right arrow key</span> whenever you see a <span class="positive-class positive-class-label">dog</span>. </li>
+  <li> After clicking 'Play', press <span id="positive_action" class="positive-class positive-class-action">the right arrow key</span> whenever you see <span class="positive-class"><span id="positive_label"></span></span>. </li>
   <li> The images will go by really fast so be prepared. </li>
   <li> We understand that you will not be able to react on time for
        all the correct images. So try to do the best you can. We
@@ -20,7 +20,7 @@ instructions.rsvp = `<ul>
 </ul>`;
 instructions.traditional = `<ul>
   <li> A series of images will be shown to you after you click 'Play'. </li>
-  <li> For each image, press <span class="positive-class positive-class-action">the right arrow key</span> if the image <span class="positive-class positive-class-label">contains a dog</span>, and press <span class="negative-class negative-class-action">the left arrow key</span> if the image <span class="negative-class positive-class-label">does not contain a dog</span>. </li>
+  <li> For each image, press <span id="positive_action" class="positive-class">the right arrow key</span> if the image <span class="positive-class">contains <span id="positive_label"></span></span>, and press <span id="negative_action" class="negative-class">the left arrow key</span> if the image <span class="negative-class">does not contain <span id="negative_label"></span></span>. </li>
   <li> Try to do the best you can. We know the answer to a few of the images. </li>
   <li> When the task is complete, press 'Next Task'. </li>
 </ul>`;
@@ -34,41 +34,42 @@ $(document).ready(function() {
 });
 
 function initialize(){
-  c.playing         = false;
-  c.links           = links;
-  c.interface_list  = ["traditional", "rsvp"];
-  c.task_list       = ["easy", "medium", "hard"];
-  c.task_descriptions = {
-    positive : ["contains a dog", "contains a person on a motorcycle", "contains people eating breakfast"],
-    negative : ["does not contain a dog", "does not contain a person on a motorcycle", "does not contain people eating breakfast"]
-  };
-  c.interface_index = 0;
-  c.task_index      = 0;
+  c.playing           = false;
+  c.links             = links;
+  c.interface_list    = ["traditional", "rsvp"];
+  c.task_list         = ["easy", "medium", "hard"];
+  c.task_descriptions = ["a dog", "a person on a motorcycle", "people eating breakfast"];
+  c.interface_index   = 0;
+  c.task_index        = 0;
 
-  c.interface_order = _.shuffle(Array.apply(null, {length: c.interface_list.length}).map(Number.call, Number));
-  c.task_order      = _.shuffle(Array.apply(null, {length: c.task_list.length}).map(Number.call, Number));
+  c.interface_order   = _.shuffle(Array.apply(null, {length: c.interface_list.length}).map(Number.call, Number));
+  c.task_order        = _.shuffle(Array.apply(null, {length: c.task_list.length}).map(Number.call, Number));
 
-  c.interface       = c.interface_list[c.interface_order[c.interface_index]];
-  c.task            = c.task_list[c.task_order[c.task_index]];
+  c.interface         = c.interface_list[c.interface_order[c.interface_index]];
+  c.task              = c.task_list[c.task_order[c.task_index]];
 
-  c.task_t          = 500; // ms between images
-  c.task_t_end      = c.task_t*5; // ms to wait after last image before cleaning up
-  c.task_length     = 10; // number of images in task
-  c.task_f_mean     = 10;  // mean of number of positive examples to show, per 100
-  c.task_f_std      = 2;   // std of number of positive examples to show
-  c.url = "http://web.mit.edu/micahs/www/rsvp/data";
+  c.task_t            = 500;        // ms between images
+  c.task_t_end        = c.task_t*5; // ms to wait after last image before cleaning up (rsvp)
+  c.task_length       = 10;         // number of images in task
+  c.task_f_mean       = 10;         // mean of number of positive examples to show, per 100
+  c.task_f_std        = 2;          // std of number of positive examples to show
+
+  c.data_url          = "http://web.mit.edu/micahs/www/rsvp/data";
 
   // user
-  c.uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-        return v.toString(16);
-  });
-
+  c.uuid              = randomId();
 }
 
 function prepareTask(){
   // number of images that are positive examples, per 100
   c.task_f          = randn_bm()*c.task_f_std + c.task_f_mean;
+
+  // interface type
+  if (c.interface_index == 0){
+    $("#interface_type").text("A");
+  } else {
+    $("#interface_type").text("B");
+  }
 
   // instructions
   $("#instructions").empty();
@@ -78,7 +79,9 @@ function prepareTask(){
     $("#instructions").append(instructions.traditional);
   }
 
-  // objects
+  // labels
+  $("#positive_label").text(c.task_descriptions[c.task_index]);
+  $("#negative_label").text(c.task_descriptions[c.task_index]);
 
   c.ids = fetchImages();
 }
@@ -155,7 +158,7 @@ function fetchImages(){
     class_ = tmp[0];
     index  = tmp[1];
     $( "#image_panel" ).append(
-      '<img id="{0}" class="image-hidden" src="{1}/{2}/{3}/{4}.jpg" height="100%" width="100%">'.format(id, c.url, c.task, class_, index)
+      '<img id="{0}" class="image-hidden" src="{1}/{2}/{3}/{4}.jpg" height="100%" width="100%">'.format(id, c.data_url, c.task, class_, index)
     );
   }
 
@@ -223,6 +226,7 @@ function prepareNextTask(){
       c.interface = c.interface_list[c.interface_order[c.interface_index]];
       c.task_index = 0;
       c.task = c.task_list[c.task_order[c.task_index]];
+      window.alert("Done with this block. Ready to go on?");
     }
   } else {
     // next task
@@ -316,4 +320,11 @@ function disableButton(id){
 }
 function enableButton(id){
   $( "#" + id ).removeClass("btn-disabled").addClass("btn-enabled");
+}
+
+function randomId(){
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+          return v.toString(16);
+  });
 }

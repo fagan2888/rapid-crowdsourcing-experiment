@@ -31,6 +31,10 @@ body {
 .negative-class {
   color: red;
 }
+#positive_label, #negative_label {
+  font-weight: bold;
+}
+
 #image_panel {
   position: relative;
   border: 1px solid black;
