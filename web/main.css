@@ -29,6 +29,7 @@ body {
   color: red;
 }
 #image_panel {
+  position: relative;
   border: 1px solid black;
   width: 320px;
   height: 320px;
@@ -40,4 +41,16 @@ body {
   margin-left: auto;
   margin-right: auto;
   display: block;
+}
+
+#image_panel > img {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+.image-hidden {
+  visibility: hidden;
+}
+.image-visible {
+  visibility: visible;
 }
