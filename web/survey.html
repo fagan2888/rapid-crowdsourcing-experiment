@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+<!--
+/* Copyright (c) 2017 Micah Smith, all rights reserved.
+ */
+-->
+
+<head>
+  <meta charset="utf-8">
+  <title>Rapid Crowdsourcing Experiment</title>
+
+  <!-- Use mobile-aware viewport -->
+  <meta name="viewport" content=
+    "width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Load style sheets -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.css">
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+  <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="#">Rapid Crowdsourcing Experiment</a>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-12">
+          <h1> Thanks for your participation</h1>
+          <p>
+            Please now take a brief survey about your experiences with the platform.
+          </p>
+        </div>
+
+        <iframe id="iFrame" src="#" width="760" height="700" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+
+      </div>
+
+    </div><!-- /.container -->
+
+  <!-- Load any supplemental Javascript libraries here -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="js/util.js"></script>
+  <script>
+    $(document).ready(function() {
+      var url     = "https://docs.google.com/forms/d/e/1FAIpQLSdOU9MGarjQKnHtVKTx25eoA0cY1DICcw2EHAz39O-9bCbPEg"
+      var entryid = "entry.1222746820";
+      var uuid    = $.getUrlVar("uuid");
+      $( "#iFrame" ).attr({
+        "src": "{0}/viewform?{1}={2}&embedded=true".format(url, entryid, uuid)
+      });
+    });
+  </script>
+</body>
+
+</html>
