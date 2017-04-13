@@ -116,9 +116,16 @@ function playImages(ids){
   }, c.task_length, c.task_t);
 
   // wait until done?
-  poll(function(){return !c.playing;}, c.task_length*c.task_t*1.25, c.task_t/2)
-  .then(function(){flushLog(log);})
-  .catch(function(){console.log("timed out");});
+  poll(function(){
+    return !c.playing;
+  }, c.task_length*c.task_t*1.25, c.task_t/2)
+  .then(function(){
+    flushLog(log);
+    console.log("done");
+  })
+  .catch(function(){
+    console.log("timed out");
+  });
 }
 
 function showImage(id){
@@ -168,19 +175,8 @@ function processButton(evt, timestamp){
 }
 
 function flushLog(log){
-  for (let i=0; i<log.length; i++){
-    row = log[i];
-
-    sendRapidCrowdsourcingLogFake(
-      row.timestamp,
-      row.uuid,
-      row.interface,
-      row.task,
-      row.source,
-      row.id,
-      row.value
-    );
-  }
+  log_str = JSON.stringify(log);
+  sendRapidCrowdsourcingLog(log_str);
 
   // clear log
   log.length = 0;
