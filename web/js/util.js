@@ -48,3 +48,23 @@ function poll(fn, timeout, interval) {
 
     return new Promise(checkCondition);
 }
+
+function myCountdownInner(seconds, callback){
+    if (seconds > 0){
+      $("#countdown").html(String(seconds));
+      $("#countdown").show();
+      $("#countdown").fadeOut(1000, function(){
+        myCountdownInner(seconds-1, callback);
+      });
+    } else {
+      $("#countdown").remove();
+      callback();
+    }
+}
+
+function myCountdown(seconds, callback){
+  $( "#image_panel" ).append(
+    '<div id="countdown" class="countdown"></div>'.format(seconds)
+  );
+  myCountdownInner(seconds, callback);
+}

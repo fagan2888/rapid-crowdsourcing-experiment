@@ -64,3 +64,15 @@ body {
 .btn-enabled {
   background-color: #00BFFF;
 }
+
+.countdown {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 320px;
+  height: 320px;
+  line-height: 320px;
+  text-align: center;
+  font-family: monospace;
+  font-size: 160px;
+}

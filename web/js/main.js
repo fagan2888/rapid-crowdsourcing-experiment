@@ -31,13 +31,17 @@ $(document).ready(function() {
 });
 
 $(document).on("click", "#btn_play", function(evt) {
-  ids = c.ids; // TODO
   $( "#btn_play" ).removeClass("btn-enabled").addClass("btn-disabled");
-  if (c.interface == "rsvp") {
-    playImagesRsvp(ids);
-  } else {
-    playImagesTraditional(ids);
-  }
+
+  // add countdown animation :)
+  myCountdown(4, function(){
+    ids = c.ids; // TODO
+    if (c.interface == "rsvp") {
+      playImagesRsvp(ids);
+    } else {
+      playImagesTraditional(ids);
+    }
+  });
 });
 
 function initialize(){
@@ -123,7 +127,7 @@ function fetchImages(){
     class_ = tmp[0];
     index  = tmp[1];
     $( "#image_panel" ).append(
-      '<img id="{0}" class="image-hidden" src="{1}/{2}/{3}/{4}.jpg" height="100%" width="100%"></img>'.format(id, c.url, c.task, class_, index)
+      '<img id="{0}" class="image-hidden" src="{1}/{2}/{3}/{4}.jpg" height="100%" width="100%">'.format(id, c.url, c.task, class_, index)
     );
   }
 
