@@ -39,12 +39,12 @@ function initialize(){
   c.task_descriptions = {
     positive : ["contains a dog", "contains a person on a motorcycle", "contains people eating breakfast"],
     negative : ["does not contain a dog", "does not contain a person on a motorcycle", "does not contain people eating breakfast"]
-  }
+  };
   c.interface_index = 0;
   c.task_index      = 0;
 
-  c.interface_order = _.shuffle(Array.apply(null, {length: c.interface_list.length}).map(Number.call, Number))
-  c.task_order      = _.shuffle(Array.apply(null, {length: c.task_list.length}).map(Number.call, Number))
+  c.interface_order = _.shuffle(Array.apply(null, {length: c.interface_list.length}).map(Number.call, Number));
+  c.task_order      = _.shuffle(Array.apply(null, {length: c.task_list.length}).map(Number.call, Number));
 
   c.interface       = c.interface_list[c.interface_order[c.interface_index]];
   c.task            = c.task_list[c.task_order[c.task_index]];
@@ -200,9 +200,9 @@ function cleanUpTraditional(){
 }
 
 function completeExperimentation(){
-  $("#btn_next").value("Done With Tasks");
-  $("#btn_next").off("click").on("click", function() {
-    window.location = "/survey.html?uuid=" + c.uuid;
+  $("#btn_next").val("Done With Tasks");
+  $(document).off("click", "#btn_next").on("click", "#btn_next", function() {
+    window.location = "survey.html?uuid=" + c.uuid;
   });
   enableButton("btn_next");
 
@@ -214,11 +214,13 @@ function prepareNextTask(){
     if (c.interface_index == (c.interface_list.length - 1)){
       // done with everything.
       completeExperimentation();
-      return
+      return;
     } else {
       // next interface
       c.interface_index += 1;
       c.interface = c.interface_list[c.interface_order[c.interface_index]];
+      c.task_index = 0;
+      c.task = c.task_list[c.task_order[c.task_index]];
     }
   } else {
     // next task
