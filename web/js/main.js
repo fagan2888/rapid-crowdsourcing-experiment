@@ -16,11 +16,13 @@ instructions.rsvp = `<ul>
        all the correct images. So try to do the best you can. We
        know the answer to a few of the images and will accept your
        hit if you get those right. </li>
+  <li> When the task is complete, press 'Next Task'. </li>
 </ul>`;
 instructions.traditional = `<ul>
   <li> A series of images will be shown to you after you click 'Play'. </li>
   <li> For each image, press <span class="positive-class positive-class-action">the right arrow key</span> if the image <span class="positive-class positive-class-label">contains a dog</span>, and press <span class="negative-class negative-class-action">the left arrow key</span> if the image <span class="negative-class positive-class-label">does not contain a dog</span>. </li>
   <li> Try to do the best you can. We know the answer to a few of the images. </li>
+  <li> When the task is complete, press 'Next Task'. </li>
 </ul>`;
 
 // ------------------------------------------------------------------------------

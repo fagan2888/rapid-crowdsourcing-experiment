@@ -38,6 +38,7 @@ body {
   height: 320px;
 }
 .wrapper {
+  padding: 20px;
   text-align: center;
 }
 .wrapper-block {

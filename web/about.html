@@ -8,7 +8,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Rapid Crowdsourcing Survey</title>
+  <title>About Rapid Crowdsourcing</title>
 
   <!-- Use mobile-aware viewport -->
   <meta name="viewport" content=
@@ -25,7 +25,7 @@
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="#">Rapid Crowdsourcing Experiment</a>
+    <a class="navbar-brand" href="index.html">Rapid Crowdsourcing Experiment</a>
 
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
       <ul class="navbar-nav ml-auto">
@@ -40,36 +40,17 @@
 
       <div class="row">
         <div class="col-md-12">
-          <h1> Thanks for your participation</h1>
+          <h1>About</h1>
           <p>
-            Please now take a brief survey about your experiences with the platform.
+            About
           </p>
         </div>
 
-        <iframe id="iFrame" src="#" width="760" height="700" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
 
       </div>
 
     </div><!-- /.container -->
 
-  <!-- Load any supplemental Javascript libraries here -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="js/util.js"></script>
-  <script>
-    $(document).ready(function() {
-      var url     = "https://docs.google.com/forms/d/e/1FAIpQLSdOU9MGarjQKnHtVKTx25eoA0cY1DICcw2EHAz39O-9bCbPEg"
-      var entryid = "entry.1222746820";
-      var uuid    = $.getUrlVar("uuid");
-      if (uuid){
-        var prefill = "{0}={1}&".format(entryid, uuid);
-      } else {
-        var prefill = "";
-      }
-      $( "#iFrame" ).attr({
-        "src": "{0}/viewform?{1}embedded=true".format(url, prefill)
-      });
-    });
-  </script>
 </body>
 
 </html>
