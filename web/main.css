@@ -26,6 +26,9 @@ body {
   text-align: center;
 }
 .positive-class {
+  color: blue;
+}
+.negative-class {
   color: red;
 }
 #image_panel {

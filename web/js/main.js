@@ -1,6 +1,28 @@
+// ------------------------------------------------------------------------------
+// Global variables
+
 var c = {};
 var log = [];
-var last_id = "";
+var lastId = "";
+var nextIndex = -1;
+var instructions = {};
+instructions.rsvp = `<ul>
+  <li> A series of images will be rapidly shown to you after you click 'Play'. </li>
+  <li> After clicking 'Play', press <span class="positive-class positive-class-action">the right arrow key</span> whenever you see a <span class="positive-class positive-class-label">dog</span>. </li>
+  <li> The images will go by really fast so be prepared. </li>
+  <li> We understand that you will not be able to react on time for
+       all the correct images. So try to do the best you can. We
+       know the answer to a few of the images and will accept your
+       hit if you get those right. </li>
+</ul>`;
+instructions.traditional = `<ul>
+  <li> A series of images will be shown to you after you click 'Play'. </li>
+  <li> For each image, press <span class="positive-class positive-class-action">the right arrow key</span> if the image <span class="positive-class positive-class-label">contains a dog</span>, and press <span class="negative-class negative-class-action">the left arrow key</span> if the image <span class="negative-class positive-class-label">does not contain a dog</span>. </li>
+  <li> Try to do the best you can. We know the answer to a few of the images. </li>
+</ul>`;
+
+// ------------------------------------------------------------------------------
+// Setup document
 
 $(document).ready(function() {
   initialize();
@@ -11,21 +33,20 @@ $(document).ready(function() {
 $(document).on("click", "#btn_play", function(evt) {
   ids = c.ids; // TODO
   $( "#btn_play" ).removeClass("btn-enabled").addClass("btn-disabled");
-  playImages(ids);
-});
-
-$(document).keypress(function(evt){
-  timestamp = Date.now();
-  processKey(evt, timestamp);
+  if (c.interface == "rsvp") {
+    playImagesRsvp(ids);
+  } else {
+    playImagesTraditional(ids);
+  }
 });
 
 function initialize(){
   c.playing     = false;
   c.links       = links;
-  c.interface   = "rsvp";
+  c.interface   = "rsvp"; //"traditional";
   c.task        = "easy";
-  c.task_t      = 100; // ms between images
-  c.task_length = 100; // number of images in task
+  c.task_t      = 500; // ms between images
+  c.task_length = 10; // number of images in task
   c.task_f_mean = 10;  // mean of number of positive examples to show, per 100
   c.task_f_std  = 2;   // std of number of positive examples to show
 
@@ -39,6 +60,15 @@ function initialize(){
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
   });
+
+  // instructions
+  $("#instructions").empty();
+  if (c.interface == "rsvp"){
+    $("#instructions").append(instructions.rsvp);
+  } else {
+    $("#instructions").append(instructions.traditional);
+  }
+
 }
 
 // ------------------------------------------------------------------------------
@@ -100,7 +130,7 @@ function fetchImages(){
   return ids;
 }
 
-function playImages(ids){
+function playImagesRsvp(ids){
   // create an array of `n` images
   // set a timer to fire every `t` milleseconds
   // when timer fires, change src of image
@@ -120,63 +150,110 @@ function playImages(ids){
     return !c.playing;
   }, c.task_length*c.task_t*1.25, c.task_t/2)
   .then(function(){
-    flushLog(log);
-    console.log("done");
+    // when done, flush log.
+    cleanUpRsvp();
   })
   .catch(function(){
     console.log("timed out");
   });
 }
 
+function playImagesTraditional(ids){
+  c.playing = true;
+  // show first image
+  nextIndex = 1;
+  showImage(ids[0]);
+}
+
+function cleanUpRsvp(){
+    flushLog(log);
+    clearImages();
+    console.log("done");
+}
+
+function cleanUpTraditional(){
+    c.playing = false;
+    flushLog(log);
+    clearImages();
+    console.log("done");
+}
+
+
 function showImage(id){
-  if (last_id){
-    $( "#" + last_id).removeClass("image-visible").addClass("image-hidden");
+  console.log("showing {0}".format(id));
+  if (lastId){
+    $( "#" + lastId).removeClass("image-visible").addClass("image-hidden");
   }
   $( "#" + id).removeClass("image-hidden").addClass("image-visible");
   timestamp = Date.now();
-  last_id = id;
-  log.push({
-    "timestamp" : timestamp,
-    "uuid"      : c.uuid,
-    "interface" : c.interface,
-    "task"      : c.task,
-    "source"    : "image",
-    "id"        : id,
-    "value"     : ""
-  });
+  lastId = id;
+  pushLog(timestamp, c.uuid, c.interface, c.task, "image", id, "");
 }
 
-function processKey(evt, timestamp){
+// ------------------------------------------------------------------------------
+// Handle user input
+
+$(document).keypress(function(evt){
+  timestamp = Date.now();
+  if (c.interface == "rsvp"){
+    processKeyRsvp(evt, timestamp);
+  } else {
+    processKeyTraditional(evt, timestamp);
+  }
+});
+
+function processKeyRsvp(evt, timestamp){
   if (c.playing){
-    value = evt.which;
-    log.push({
-      "timestamp" : timestamp,
-      "uuid"      : c.uuid,
-      "interface" : c.interface,
-      "task"      : c.task,
-      "source"    : "key",
-      "id"        : "",
-      "value"     : value
-    });
+    value = evt.originalEvent.keyCode;
+    if (value == 39){ // right arrow only
+      pushLog(timestamp, c.uuid, c.interface, c.task, "key", "", value);
+    }
+  }
+}
+
+function processKeyTraditional(evt, timestamp){
+  if (c.playing){
+    value = evt.originalEvent.keyCode;
+    console.log(value);
+    if (value == 37 || value == 39){ // left arrow or right arrow only
+      pushLog(timestamp, c.uuid, c.interface, c.task, "key", "", value);
+
+      // are we done?
+      if (nextIndex == c.task_length){
+        // end play
+        cleanUpTraditional();
+      } else {
+        // show next picture :)
+        currentIndex = nextIndex;
+        nextIndex += 1;
+        showImage(ids[currentIndex]);
+      }
+    }
   }
 }
 
 function processButton(evt, timestamp){
   id = evt.target.id;
-  log.push({
-    "timestamp" : timestamp,
-    "uuid"      : c.uuid,
-    "interface" : c.interface,
-    "task"      : c.task,
-    "source"    : "button",
-    "id"        : id,
-    "value"     : ""
-  });
+  pushLog(timestamp, c.uuid, c.interface, c.task, "button", id, "");
+}
+
+// ------------------------------------------------------------------------------
+// Utility functions
+
+function pushLog(timestamp, uuid, interface_, task, source, id, value){
+      log.push({
+        "timestamp" : timestamp,
+        "uuid"      : uuid,
+        "interface" : interface_,
+        "task"      : task,
+        "source"    : source,
+        "id"        : id,
+        "value"     : value
+      });
 }
 
 function flushLog(log){
-  log_str = JSON.stringify(log);
-  sendRapidCrowdsourcingLog(log_str);
+  sendRapidCrowdsourcingLogFake(JSON.stringify(log));
 
   // clear log
   log.length = 0;

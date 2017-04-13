@@ -6,4 +6,6 @@ function sendRapidCrowdsourcingLog(
   });
 }
 
-function sendRapidCrowdsourcingLogFake(dump) {}
+function sendRapidCrowdsourcingLogFake(dump) {
+  console.log(dump);
+}
