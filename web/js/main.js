@@ -285,11 +285,6 @@ function processKeyTraditional(evt, timestamp){
   }
 }
 
-function processButton(evt, timestamp){
-  id = evt.target.id;
-  pushLog(timestamp, c.uuid, c.interface, c.task, "button", id, "");
-}
-
 // ------------------------------------------------------------------------------
 // Utility functions
 
