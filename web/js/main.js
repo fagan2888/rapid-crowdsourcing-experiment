@@ -1,4 +1,5 @@
 var c = {};
+var log = [];
 
 $(document).ready(function() {
   initialize();
@@ -25,11 +26,27 @@ function initialize(){
   c.task_f      = randn_bm()*c.task_f_std + c.task_f_mean;
 
   c.url = "http://web.mit.edu/micahs/www/rsvp/data";
+
+  // user
+  c.uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+  });
 }
 
 // ------------------------------------------------------------------------------
 // Mess with images
 
+/**
+ * Return the ids of a random sample of images. Ids are formatted as
+ * `class-index`, where class takes values `negative` or `positive`, and
+ * `index` is a non-zero-padded integer.
+ *
+ * Parameters
+ * c.task: the task (`"easy"`, `"medium"`, or `"hard"`)
+ * c.task_length: the number of ids to return
+ * c.task_f: the number of positive examples to show, per 100 examples
+ */
 function sampleImages(){
   // sample image ids
   num_positive_images_task = Math.round(c.task_f*c.task_length/100);
@@ -44,11 +61,6 @@ function sampleImages(){
     Array.apply(null, {length: num_negative_images_all}).map(Number.call, Number),
     num_negative_images_task 
   );
-
-  console.log(num_positive_images_task);
-  console.log(num_negative_images_task);
-  console.log(positive_images);
-  console.log(negative_images);
 
   // populate image ids and shuffle them
   // image ids are formatted like `negative/0`
@@ -97,6 +109,42 @@ function playImages(ids){
 function showImage(id){
   $( "#image_panel > img" ).removeClass("image-visible").addClass("image-hidden");
   $( "#" + id).removeClass("image-hidden").addClass("image-visible");
+
+  timestamp = Date.now();
+  log.push({
+    "timestamp" : timestamp,
+    "uuid"      : c.uuid,
+    "task"      : c.task,
+    "source"    : "image",
+    "id"        : id,
+    "value"     : ""
+  });
+}
+
+function processKey(evt){
+  value = evt.which;
+  timestamp = Date.now();
+  log.push({
+    "timestamp" : timestamp,
+    "uuid"      : c.uuid,
+    "task"      : c.task,
+    "source"    : "key",
+    "id"        : "",
+    "value"     : value
+  });
+}
+
+function processButton(evt){
+  id = evt.target.id;
+  timestamp = Date.now();
+  log.push({
+    "timestamp" : timestamp,
+    "uuid"      : c.uuid,
+    "task"      : c.task,
+    "source"    : "button",
+    "id"        : id,
+    "value"     : ""
+  });
 }
 
 function clearImages(){
