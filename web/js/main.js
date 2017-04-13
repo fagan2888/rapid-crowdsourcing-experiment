@@ -10,11 +10,13 @@ $(document).ready(function() {
 
 $(document).on("click", "#btn_play", function(evt) {
   ids = c.ids; // TODO
+  $( "#btn_play" ).removeClass("btn-enabled").addClass("btn-disabled");
   playImages(ids);
 });
 
 $(document).keypress(function(evt){
-  processKey(evt);
+  timestamp = Date.now();
+  processKey(evt, timestamp);
 });
 
 function initialize(){
@@ -116,7 +118,7 @@ function playImages(ids){
   // wait until done?
   poll(function(){return !c.playing;}, c.task_length*c.task_t*1.25, c.task_t/2)
   .then(function(){flushLog(log);})
-  .catch(function(){console.log("timed out")});
+  .catch(function(){console.log("timed out");});
 }
 
 function showImage(id){
@@ -124,9 +126,8 @@ function showImage(id){
     $( "#" + last_id).removeClass("image-visible").addClass("image-hidden");
   }
   $( "#" + id).removeClass("image-hidden").addClass("image-visible");
-  last_id = id;
-
   timestamp = Date.now();
+  last_id = id;
   log.push({
     "timestamp" : timestamp,
     "uuid"      : c.uuid,
@@ -138,10 +139,9 @@ function showImage(id){
   });
 }
 
-function processKey(evt){
+function processKey(evt, timestamp){
   if (c.playing){
     value = evt.which;
-    timestamp = Date.now();
     log.push({
       "timestamp" : timestamp,
       "uuid"      : c.uuid,
@@ -154,9 +154,8 @@ function processKey(evt){
   }
 }
 
-function processButton(evt){
+function processButton(evt, timestamp){
   id = evt.target.id;
-  timestamp = Date.now();
   log.push({
     "timestamp" : timestamp,
     "uuid"      : c.uuid,
@@ -169,13 +168,8 @@ function processButton(evt){
 }
 
 function flushLog(log){
-  differences = [];
-  last = 0;
   for (let i=0; i<log.length; i++){
     row = log[i];
-
-    differences.push(row.timestamp - last);
-    last = row.timestamp;
 
     sendRapidCrowdsourcingLogFake(
       row.timestamp,
@@ -189,10 +183,7 @@ function flushLog(log){
   }
 
   // clear log
-  console.log(log);
-  // log.length = 0;
-  //
-  console.log(differences);
+  log.length = 0;
 }
 
 function clearImages(){

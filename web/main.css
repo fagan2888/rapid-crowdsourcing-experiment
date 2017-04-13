@@ -54,3 +54,10 @@ body {
 .image-visible {
   visibility: visible;
 }
+.btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-enabled {
+  background-color: #00BFFF;
+}
