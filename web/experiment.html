@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<!--
+  Micah Smith
+  Collaboration:
+  - used Bootstrap starter template
+    (https://v4-alpha.getbootstrap.com/examples/starter-template/)
+  - used randn_bm from Maxwell Collard
+    (http://stackoverflow.com/a/36481059/2514228)
+  - used string format from fearphage
+    (http://stackoverflow.com/a/4673436/2514228)
+  - used callNTimes function from Amadan
+    (http://stackoverflow.com/a/21648304/2514228)
+  - used UID generation snippet from Community Wiki
+    (http://stackoverflow.com/a/2117523/2514228)
+  - Used js poll from David Walsh
+    (https://davidwalsh.name/javascript-polling)
+  - Used kbd css from Stack Overflow css
+-->
+
+<html>
+<!--
+/* Copyright (c) 2017 Micah Smith, all rights reserved.
+ */
+-->
+
+<head>
+  <meta charset="utf-8">
+  <title>Rapid Crowdsourcing Experiment</title>
+
+  <!-- Use mobile-aware viewport -->
+  <meta name="viewport" content=
+    "width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Load style sheets -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.css">
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+  <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="index.html">Rapid Crowdsourcing Experiment</a>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="about.html">About</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-6">
+          <h1> Instructions </h1>
+          <h3> Interface <span id="interface_type"></span> </h3>
+          <p id="instructions"> </p>
+
+          <div class="wrapper">
+            <input id="btn_next" type="button" class="btn btn-disabled" value="Next Task"></input>
+          </div>
+
+        </div>
+
+        <div class="col-md-5">
+          
+          <div class="wrapper">
+            <table id="action_reminders">
+              <tbody>
+                <tr>
+                  <td><span class="negative-action-reminder negative-action negative-class kbd"></span></td>
+                  <td><span class="positive-action-reminder positive-action positive-class kbd"></span></td>
+                </tr>
+                <tr>
+                  <td class="negative-action-reminder negative-class">otherwise</td>
+                  <td class="positive-action-reminder positive-label positive-class"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="image_panel" class="wrapper-block">
+          </div>
+
+          <div class="wrapper">
+            <input id="btn_play" type="button" class="btn btn-enabled" value="Play"></input>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /.container -->
+
+  <!-- Load any supplemental Javascript libraries here -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.2/seedrandom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <script src="data/links.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/submit.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>

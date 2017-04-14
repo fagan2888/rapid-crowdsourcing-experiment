@@ -57,54 +57,56 @@
     <div class="container">
 
       <div class="row">
-        <div class="col-md-6">
-          <h1> Instructions </h1>
-          <h3> Interface <span id="interface_type"></span> </h3>
-          <p id="instructions"> </p>
+        <div class="col-md-12">
+          <h2> Rapid Crowdsourcing Experiment </h2>
+          <h3> Welcome </h3>
+          <p>
+            This experiment tests different interfaces for crowdsourcing image
+            labeling.
+            
+            Your participation in this study is completely voluntary and you
+            are free to choose whether to be in it or not. If you choose to be
+            in this study, you may subsequently withdraw from it at any time
+            without penalty or consequences of any kind.
 
-          <div class="wrapper">
-            <input id="btn_next" type="button" class="btn btn-disabled" value="Next Task"></input>
-          </div>
+            You will receive no payment or compensation for participation in
+            this study.
+          </p>
 
-        </div>
+          <h3> Procedures </h3>
+          <p>
+             Once you begin, you will be presented with interfaces to label
+             images. For example, you may be asked to determine if a specific
+             image contains a chair or does not contain any chairs. Read the
+             instructions carefully, as the interface may change between tasks.
 
-        <div class="col-md-5">
-          
-          <div class="wrapper">
-            <table id="action_reminders">
-              <tbody>
-                <tr>
-                  <td><span class="negative-action-reminder negative-action negative-class kbd"></span></td>
-                  <td><span class="positive-action-reminder positive-action positive-class kbd"></span></td>
-                </tr>
-                <tr>
-                  <td class="negative-action-reminder negative-class">otherwise</td>
-                  <td class="positive-action-reminder positive-label positive-class"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+             After you have finished a task, press "Next Task" to proceed to the next task.
 
-          <div id="image_panel" class="wrapper-block">
-          </div>
+             After you have completed all the tasks, press "Done With Tasks".
+             You will be directed to a page with a short survey.
+          </p>
 
-          <div class="wrapper">
-            <input id="btn_play" type="button" class="btn btn-enabled" value="Play"></input>
-          </div>
+          <h3> Confidentiality </h3>
+          <p>
+            We do not collect any personally identifying information. You will
+            be given an anonymous identifier, and all publications and
+            discussion of your data will be purely in terms of the anonymous
+            identifier. Your survey responses will be stored on a secure server
+            accessible only to the investigators.
+          </p>
+
+          <a id="experiment_link" href="experiment.html" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Proceed to experiment</a>
 
         </div>
       </div>
-
     </div><!-- /.container -->
 
-  <!-- Load any supplemental Javascript libraries here -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.2/seedrandom.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-  <script src="data/links.js"></script>
-  <script src="js/util.js"></script>
-  <script src="js/submit.js"></script>
-  <script src="js/main.js"></script>
+  <script>
+    var search = window.location.search;
+    console.log(search);
+    var element = document.getElementById("experiment_link");
+    element.href = element.href + search;
+  </script>
 </body>
 
 </html>
