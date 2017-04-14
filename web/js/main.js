@@ -1,4 +1,4 @@
-Math.seedrandom(6831);
+// Math.seedrandom(6831);
 
 // ------------------------------------------------------------------------------
 // Global variables
@@ -10,7 +10,7 @@ var nextIndex = -1;
 var instructions = {};
 instructions.rsvp = `<ul>
   <li> A series of images will be rapidly shown to you after you click 'Play'. </li>
-  <li> After clicking 'Play', press <span id="positive_action" class="positive-class positive-class-action">the right arrow key</span> whenever you see <span class="positive-class"><span id="positive_label"></span></span>. </li>
+  <li> After clicking 'Play', press <span class="positive-class positive-action kbd"></span> whenever you see <span class="positive-class"><span class="positive-label"></span></span>. </li>
   <li> The images will go by really fast so be prepared. </li>
   <li> We understand that you will not be able to react on time for
        all the correct images. So try to do the best you can. We
@@ -20,7 +20,7 @@ instructions.rsvp = `<ul>
 </ul>`;
 instructions.traditional = `<ul>
   <li> A series of images will be shown to you after you click 'Play'. </li>
-  <li> For each image, press <span id="positive_action" class="positive-class">the right arrow key</span> if the image <span class="positive-class">contains <span id="positive_label"></span></span>, and press <span id="negative_action" class="negative-class">the left arrow key</span> if the image <span class="negative-class">does not contain <span id="negative_label"></span></span>. </li>
+  <li> For each image, press <span class="positive-class positive-action kbd"></span> if the image <span class="positive-class">contains <span class="positive-label"></span></span>, and press <span class="negative-class negative-action kbd"></span> if the image <span class="negative-class">does not contain <span class="negative-label"></span></span>. </li>
   <li> Try to do the best you can. We know the answer to a few of the images. </li>
   <li> When the task is complete, press 'Next Task'. </li>
 </ul>`;
@@ -36,6 +36,10 @@ $(document).ready(function() {
 function initialize(){
   c.playing           = false;
   c.links             = links;
+  c.keys = {
+    positive: { code: 74, character: 'j' },
+    negative: { code: 70, character: 'f' }
+  };
   c.interface_list    = ["traditional", "rsvp"];
   c.task_list         = ["easy", "medium", "hard"];
   c.task_descriptions = ["a dog", "a person on a motorcycle", "people eating breakfast"];
@@ -65,7 +69,7 @@ function prepareTask(){
   c.task_f          = randn_bm()*c.task_f_std + c.task_f_mean;
 
   // interface type
-  if (c.interface_index == 0){
+  if (c.interface_index === 0){
     $("#interface_type").text("A");
   } else {
     $("#interface_type").text("B");
@@ -80,8 +84,19 @@ function prepareTask(){
   }
 
   // labels
-  $("#positive_label").text(c.task_descriptions[c.task_index]);
-  $("#negative_label").text(c.task_descriptions[c.task_index]);
+  $(".positive-label").text(c.task_descriptions[c.task_index]);
+  $(".negative-label").text(c.task_descriptions[c.task_index]);
+
+  // actions
+  $(".positive-action").html(c.keys.positive.character);
+  $(".negative-action").html(c.keys.negative.character);
+  
+  // description
+  if (c.interface == "traditional"){
+    $(".negative-action-reminder").css({"visibility" : "visible"});
+  } else {
+    $(".negative-action-reminder").css({"visibility" : "hidden"});
+  }
 
   c.ids = fetchImages();
 }
@@ -226,7 +241,6 @@ function prepareNextTask(){
       c.interface = c.interface_list[c.interface_order[c.interface_index]];
       c.task_index = 0;
       c.task = c.task_list[c.task_order[c.task_index]];
-      window.alert("Done with this block. Ready to go on?");
     }
   } else {
     // next task
@@ -251,6 +265,7 @@ function showImage(id){
 // Handle user input
 
 $(document).keypress(function(evt){
+  evt.preventDefault();
   timestamp = Date.now();
   if (c.interface == "rsvp"){
     processKeyRsvp(evt, timestamp);
@@ -262,7 +277,7 @@ $(document).keypress(function(evt){
 function processKeyRsvp(evt, timestamp){
   if (c.playing){
     value = evt.originalEvent.keyCode;
-    if (value == 39){ // right arrow only
+    if (value == c.keys.positive.code) {
       pushLog(timestamp, c.uuid, c.interface, c.task, "key", "", value);
     }
   }
@@ -270,9 +285,8 @@ function processKeyRsvp(evt, timestamp){
 
 function processKeyTraditional(evt, timestamp){
   if (c.playing){
-    value = evt.originalEvent.keyCode;
-    console.log(value);
-    if (value == 37 || value == 39){ // left arrow or right arrow only
+    value = evt.originalEvent.key;
+    if (value == c.keys.positive.character || value == c.keys.negative.character) {
       pushLog(timestamp, c.uuid, c.interface, c.task, "key", "", value);
 
       // are we done?
@@ -305,7 +319,8 @@ function pushLog(timestamp, uuid, interface_, task, source, id, value){
 }
 
 function flushLog(log){
-  sendRapidCrowdsourcingLogFake(JSON.stringify(log));
+  sendRapidCrowdsourcingLog(JSON.stringify(log));
+  //sendRapidCrowdsourcingLogFake(JSON.stringify(log));
 
   // clear log
   log.length = 0;

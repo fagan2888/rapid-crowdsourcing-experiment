@@ -15,6 +15,7 @@
     (http://stackoverflow.com/a/2117523/2514228)
   - Used js poll from David Walsh
     (https://davidwalsh.name/javascript-polling)
+  - Used kbd css from Stack Overflow css
 -->
 
 <html>
@@ -56,7 +57,7 @@
     <div class="container">
 
       <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-6">
           <h1> Instructions </h1>
           <h3> Interface <span id="interface_type"></span> </h3>
           <p id="instructions"> </p>
@@ -67,7 +68,23 @@
 
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-5">
+          
+          <div class="wrapper">
+            <table id="action_reminders">
+              <tbody>
+                <tr>
+                  <td><span class="negative-action-reminder negative-action negative-class kbd"></span></td>
+                  <td><span class="positive-action-reminder positive-action positive-class kbd"></span></td>
+                </tr>
+                <tr>
+                  <td class="negative-action-reminder negative-class">otherwise</td>
+                  <td class="positive-action-reminder positive-label positive-class"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <div id="image_panel" class="wrapper-block">
           </div>
 
