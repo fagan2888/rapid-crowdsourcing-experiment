@@ -44,7 +44,8 @@ function initialize(){
     task_f_mean     : { value: undefined, default: 10,        parser: parseInt }, // mean of number of positive examples to show in each task, per 100
     task_f_std      : { value: undefined, default: 2,         parser: parseInt }, // std of number of positive examples to show
     task_f_override : { value: undefined, default: undefined, parser: parseInt }, // override for number of positive examples to show in each task, per 100
-    uuid_override   : { value: undefined, default: undefined, parser: String }    // override for user id
+    uuid_override   : { value: undefined, default: undefined, parser: String },   // override for user id
+    testing         : { value: undefined, default: false,     parser: (x) => x==="false" } // whether we are testing => don't write to real log
   };
 
   for (var obj in c.parameters){
@@ -261,7 +262,6 @@ function completeExperimentation(){
     window.location = "survey.html?uuid=" + c.uuid;
   });
   enableButton("btn_next");
-
 }
 
 function prepareNextTask(){
@@ -355,8 +355,11 @@ function pushLog(timestamp, uuid, interface_, task, source, id, value){
 }
 
 function flushLog(log){
-  sendRapidCrowdsourcingLog(JSON.stringify(log));
-  //sendRapidCrowdsourcingLogFake(JSON.stringify(log));
+  if (!c.parameters.testing){
+    sendRapidCrowdsourcingLog(JSON.stringify(log));
+  } else {
+    sendRapidCrowdsourcingLogFake(JSON.stringify(log));
+  }
 
   // clear log
   log.length = 0;
