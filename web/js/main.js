@@ -36,15 +36,15 @@ $(document).ready(function() {
 function initialize(){
   // Read parameters from url
   c.parameters = {
-    n_interfaces    : { value: undefined, default: 2,         parser: parseInt },         // number of interfaces to randomly sample out of all interfaces
-    n_tasks         : { value: undefined, default: 3,         parser: parseInt },         // number of tasks to random sample out of all tasks
-    task_t          : { value: undefined, default: 500,       parser: parseInt },       // ms between images (rsvp only)
-    task_t_end      : { value: undefined, default: 2500,      parser: parseInt },      // ms to wait after last image before cleaning up (rsvp only)
-    task_length     : { value: undefined, default: 10,        parser: parseInt },        // number of images in task
-    task_f_mean     : { value: undefined, default: 10,        parser: parseInt },        // mean of number of positive examples to show in each task, per 100
-    task_f_std      : { value: undefined, default: 2,         parser: parseInt },         // std of number of positive examples to show
+    n_interfaces    : { value: undefined, default: 2,         parser: parseInt }, // number of interfaces to randomly sample out of all interfaces
+    n_tasks         : { value: undefined, default: 3,         parser: parseInt }, // number of tasks to random sample out of all tasks
+    task_t          : { value: undefined, default: 100,       parser: parseInt }, // ms between images (rsvp only)
+    task_t_end      : { value: undefined, default: 1500,      parser: parseInt }, // ms to wait after last image before cleaning up (rsvp only)
+    task_length     : { value: undefined, default: 100,       parser: parseInt }, // number of images in task
+    task_f_mean     : { value: undefined, default: 10,        parser: parseInt }, // mean of number of positive examples to show in each task, per 100
+    task_f_std      : { value: undefined, default: 2,         parser: parseInt }, // std of number of positive examples to show
     task_f_override : { value: undefined, default: undefined, parser: parseInt }, // override for number of positive examples to show in each task, per 100
-    uuid_override   : { value: undefined, default: undefined, parser: String }   // override for user id
+    uuid_override   : { value: undefined, default: undefined, parser: String }    // override for user id
   };
 
   for (var obj in c.parameters){
