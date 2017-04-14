@@ -34,39 +34,75 @@ $(document).ready(function() {
 });
 
 function initialize(){
+  // Read parameters from url
+  c.parameters = {
+    n_interfaces    : { value: undefined, default: 2,         parser: parseInt },         // number of interfaces to randomly sample out of all interfaces
+    n_tasks         : { value: undefined, default: 3,         parser: parseInt },         // number of tasks to random sample out of all tasks
+    task_t          : { value: undefined, default: 500,       parser: parseInt },       // ms between images (rsvp only)
+    task_t_end      : { value: undefined, default: 2500,      parser: parseInt },      // ms to wait after last image before cleaning up (rsvp only)
+    task_length     : { value: undefined, default: 10,        parser: parseInt },        // number of images in task
+    task_f_mean     : { value: undefined, default: 10,        parser: parseInt },        // mean of number of positive examples to show in each task, per 100
+    task_f_std      : { value: undefined, default: 2,         parser: parseInt },         // std of number of positive examples to show
+    task_f_override : { value: undefined, default: undefined, parser: parseInt }, // override for number of positive examples to show in each task, per 100
+    uuid_override   : { value: undefined, default: undefined, parser: String }   // override for user id
+  };
+
+  for (var obj in c.parameters){
+    var urlVar = $.getUrlVar(obj);
+    if (urlVar){
+      c.parameters[obj].value = c.parameters[obj].parser(urlVar);
+    } else {
+      c.parameters[obj].value = c.parameters[obj].default;
+    }
+  }
+
   c.playing           = false;
   c.links             = links;
   c.keys = {
     positive: { code: 74, character: 'j' },
     negative: { code: 70, character: 'f' }
   };
+
+
   c.interface_list    = ["traditional", "rsvp"];
-  c.task_list         = ["easy", "medium", "hard"];
-  c.task_descriptions = ["a dog", "a person on a motorcycle", "people eating breakfast"];
+  c.task_list = [
+    { name: "easy"   , description: "a dog" },
+    { name: "medium" , description: "a person on a motorcycle" },
+    { name: "hard"   , description: "people eating breakfast" }
+  ];
   c.interface_index   = 0;
   c.task_index        = 0;
+
+  if (c.parameters.n_interfaces < c.interface_list.length){
+    c.interface_list = _.sample(c.interface_list, c.parameters.n_interfaces);
+  }
+  if (c.parameters.n_tasks < c.task_list.length){
+    c.task_list = _.sample(c.task_list, c.parameters.n_tasks);
+  }
 
   c.interface_order   = _.shuffle(Array.apply(null, {length: c.interface_list.length}).map(Number.call, Number));
   c.task_order        = _.shuffle(Array.apply(null, {length: c.task_list.length}).map(Number.call, Number));
 
   c.interface         = c.interface_list[c.interface_order[c.interface_index]];
-  c.task              = c.task_list[c.task_order[c.task_index]];
-
-  c.task_t            = 500;        // ms between images
-  c.task_t_end        = c.task_t*5; // ms to wait after last image before cleaning up (rsvp)
-  c.task_length       = 10;         // number of images in task
-  c.task_f_mean       = 10;         // mean of number of positive examples to show, per 100
-  c.task_f_std        = 2;          // std of number of positive examples to show
+  c.task              = c.task_list[c.task_order[c.task_index]].name;
 
   c.data_url          = "http://web.mit.edu/micahs/www/rsvp/data";
 
   // user
-  c.uuid              = randomId();
+  if (c.parameters.uuid_override.value) {
+    c.uuid = c.paremeters.uuid_override.value;
+  } else {
+    c.uuid              = randomId();
+  }
 }
 
 function prepareTask(){
   // number of images that are positive examples, per 100
-  c.task_f          = randn_bm()*c.task_f_std + c.task_f_mean;
+  if (c.parameters.task_f_override.value){
+    c.task_f = c.task_f_override.value;
+  } else{
+    c.task_f = randn_bm()*c.parameters.task_f_std.value + c.parameters.task_f_mean.value;
+  }
 
   // interface type
   if (c.interface_index === 0){
@@ -84,8 +120,8 @@ function prepareTask(){
   }
 
   // labels
-  $(".positive-label").text(c.task_descriptions[c.task_index]);
-  $(".negative-label").text(c.task_descriptions[c.task_index]);
+  $(".positive-label").text(c.task_list[c.task_index].description);
+  $(".negative-label").text(c.task_list[c.task_index].description);
 
   // actions
   $(".positive-action").html(c.keys.positive.character);
@@ -136,9 +172,9 @@ $(document).on("click", "#btn_next", function(evt) {
  */
 function sampleImages(){
   // sample image ids
-  num_positive_images_task = Math.round(c.task_f*c.task_length/100);
+  num_positive_images_task = Math.round(c.task_f*c.parameters.task_length.value/100);
   num_positive_images_all  = c.links[c.task].positive.count;
-  num_negative_images_task = c.task_length - num_positive_images_task;
+  num_negative_images_task = c.parameters.task_length.value - num_positive_images_task;
   num_negative_images_all  = c.links[c.task].negative.count;
   positive_images = _.sample(
     Array.apply(null, {length: num_positive_images_all}).map(Number.call, Number),
@@ -150,7 +186,7 @@ function sampleImages(){
   );
 
   // populate image ids and shuffle them
-  // image ids are formatted like `negative/0`
+  // image ids are formatted like `negative-0`
   ids = [];
   for (let i=0; i<positive_images.length; i++){
     ids.push("{0}-{1}".format("positive", positive_images[i]));
@@ -190,11 +226,11 @@ function playImagesRsvp(ids){
   callNTimes(function() {
     showImage(ids[i]);
     i += 1;
-    if (i==c.task_length){
+    if (i==c.parameters.task_length.value){
       c.playing = false;
-      setTimeout(cleanUpRsvp, c.task_t_end);
+      setTimeout(cleanUpRsvp, c.parameters.task_t_end.value);
     }
-  }, c.task_length, c.task_t);
+  }, c.parameters.task_length.value, c.parameters.task_t.value);
 }
 
 function playImagesTraditional(ids){
@@ -240,12 +276,12 @@ function prepareNextTask(){
       c.interface_index += 1;
       c.interface = c.interface_list[c.interface_order[c.interface_index]];
       c.task_index = 0;
-      c.task = c.task_list[c.task_order[c.task_index]];
+      c.task = c.task_list[c.task_order[c.task_index]].name;
     }
   } else {
     // next task
     c.task_index += 1;
-    c.task = c.task_list[c.task_order[c.task_index]];
+    c.task = c.task_list[c.task_order[c.task_index]].name;
   }
   enableButton("btn_next");
 }
@@ -290,7 +326,7 @@ function processKeyTraditional(evt, timestamp){
       pushLog(timestamp, c.uuid, c.interface, c.task, "key", "", value);
 
       // are we done?
-      if (nextIndex == c.task_length){
+      if (nextIndex == c.parameters.task_length.value){
         // end play
         cleanUpTraditional();
       } else {
