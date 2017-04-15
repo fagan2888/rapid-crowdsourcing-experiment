@@ -34,7 +34,6 @@ $(document).ready(function() {
 });
 
 function initialize(){
-  console.log("initialize called");
   // Read parameters from url
   c.parameters = {
     n_interfaces    : { value: undefined, default: 2,         parser: parseInt }, // number of interfaces to randomly sample out of all interfaces
@@ -98,14 +97,12 @@ function initialize(){
     c.uuid              = randomId();
   }
 
-  console.log(c);
 }
 
 /*
  * Called at the beginning of the task. Sets up text and fetches images.
  */
 function prepareTask(){
-  console.log("prepareTask called");
 
   if (c.task_index === 0){
     prepareInterface();
@@ -162,7 +159,6 @@ $(document).on("click", "#btn_next", function(evt) {
 // Sample and download images
 
 function sampleImages(){
-  console.log("sampleImages called");
   // TODO does not necessarily account for n_tasks
 
   // shuffle available other images
@@ -213,8 +209,6 @@ function createIdsAndShuffle(task, posSamples, negSamples){
 }
 
 function fetchImages(ids){
-  console.log("fetchImages called");
-  console.log("task: {0}".format(c.task));
   for (let i=0; i<ids.length; i++){
     var id = ids[i];
     var tmp = id.split("-");
@@ -258,7 +252,6 @@ function playImagesTraditional(ids){
 function cleanUpRsvp(){
     flushLog(log);
     clearImages();
-    console.log("done");
     concludeTask();
 }
 
@@ -266,7 +259,6 @@ function cleanUpTraditional(){
     c.playing = false;
     flushLog(log);
     clearImages();
-    console.log("done");
     concludeTask();
 }
 
@@ -282,7 +274,6 @@ function concludeExperimentation(){
  * Called at the end of play. Increments task/interface indices and changes behavior appropriately.
  */
 function concludeTask(){
-  console.log("concludeTask called");
   if (c.task_index == (c.task_list.length - 1)){
     // done with this task.
     if (c.interface_index == (c.interface_list.length - 1)){
@@ -301,12 +292,10 @@ function concludeTask(){
     c.task_index += 1;
     c.task = c.task_list[c.task_order[c.task_index]].name;
   }
-  console.log("task changed to {0}".format(c.task));
   enableButton("btn_next");
 }
 
 function prepareInterface(){
-  console.log("prepareInterface called");
 
   // interface type
   if (c.interface_index === 0){
@@ -319,7 +308,6 @@ function prepareInterface(){
 }
 
 function showImage(id){
-  console.log("showing {0}".format(id));
   if (lastId){
     $( "#" + lastId).removeClass("image-visible").addClass("image-hidden");
   }
