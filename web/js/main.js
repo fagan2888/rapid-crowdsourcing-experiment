@@ -34,16 +34,18 @@ $(document).ready(function() {
 });
 
 function initialize(){
+  console.log("initialize called");
   // Read parameters from url
   c.parameters = {
     n_interfaces    : { value: undefined, default: 2,         parser: parseInt }, // number of interfaces to randomly sample out of all interfaces
     n_tasks         : { value: undefined, default: 3,         parser: parseInt }, // number of tasks to random sample out of all tasks
+    n_easy          : { value: undefined, default: 36,        parser: parseInt }, // number of easy images total
+    n_medium        : { value: undefined, default: 36,        parser: parseInt }, // number of medium images total
+    n_hard          : { value: undefined, default: 36,        parser: parseInt }, // number of hard images total
+    n_other         : { value: undefined, default: 612,       parser: parseInt }, // number of other images total (negative for all classes)
     task_t          : { value: undefined, default: 100,       parser: parseInt }, // ms between images (rsvp only)
     task_t_end      : { value: undefined, default: 1500,      parser: parseInt }, // ms to wait after last image before cleaning up (rsvp only)
-    task_length     : { value: undefined, default: 100,       parser: parseInt }, // number of images in task
-    task_f_mean     : { value: undefined, default: 10,        parser: parseInt }, // mean of number of positive examples to show in each task, per 100
-    task_f_std      : { value: undefined, default: 2,         parser: parseInt }, // std of number of positive examples to show
-    task_f_override : { value: undefined, default: undefined, parser: parseInt }, // override for number of positive examples to show in each task, per 100
+    task_length     : { value: undefined, default: 240,       parser: parseInt }, // number of images in each task
     uuid_override   : { value: undefined, default: undefined, parser: String },   // override for user id
     testing         : { value: undefined, default: false,     parser: (x) => x==="false" } // whether we are testing => don't write to real log
   };
@@ -87,7 +89,7 @@ function initialize(){
   c.interface         = c.interface_list[c.interface_order[c.interface_index]];
   c.task              = c.task_list[c.task_order[c.task_index]].name;
 
-  c.data_url          = "http://web.mit.edu/micahs/www/rsvp/data";
+  c.data_url          = "data/";
 
   // user
   if (c.parameters.uuid_override.value) {
@@ -95,21 +97,18 @@ function initialize(){
   } else {
     c.uuid              = randomId();
   }
+
+  console.log(c);
 }
 
+/*
+ * Called at the beginning of the task. Sets up text and fetches images.
+ */
 function prepareTask(){
-  // number of images that are positive examples, per 100
-  if (c.parameters.task_f_override.value){
-    c.task_f = c.task_f_override.value;
-  } else{
-    c.task_f = randn_bm()*c.parameters.task_f_std.value + c.parameters.task_f_mean.value;
-  }
+  console.log("prepareTask called");
 
-  // interface type
-  if (c.interface_index === 0){
-    $("#interface_type").text("A");
-  } else {
-    $("#interface_type").text("B");
+  if (c.task_index === 0){
+    prepareInterface();
   }
 
   // instructions
@@ -121,8 +120,9 @@ function prepareTask(){
   }
 
   // labels
-  $(".positive-label").text(c.task_list[c.task_index].description);
-  $(".negative-label").text(c.task_list[c.task_index].description);
+  description = c.task_list[c.task_order[c.task_index]].description
+  $(".positive-label").text(description);
+  $(".negative-label").text(description);
 
   // actions
   $(".positive-action").html(c.keys.positive.character);
@@ -135,7 +135,7 @@ function prepareTask(){
     $(".negative-action-reminder").css({"visibility" : "hidden"});
   }
 
-  c.ids = fetchImages();
+  fetchImages(c.samples[c.task].ids);
 }
 
 $(document).on("click", "#btn_play", function(evt) {
@@ -145,9 +145,9 @@ $(document).on("click", "#btn_play", function(evt) {
   // also allows images to load
   myCountdown(4, function(){
     if (c.interface == "rsvp") {
-      playImagesRsvp(c.ids);
+      playImagesRsvp(c.samples[c.task].ids);
     } else {
-      playImagesTraditional(c.ids);
+      playImagesTraditional(c.samples[c.task].ids);
     }
   });
 });
@@ -159,65 +159,78 @@ $(document).on("click", "#btn_next", function(evt) {
 });
 
 // ------------------------------------------------------------------------------
-// Mess with images
+// Sample and download images
 
-/**
- * Return the ids of a random sample of images. Ids are formatted as
- * `class-index`, where class takes values `negative` or `positive`, and
- * `index` is a non-zero-padded integer.
- *
- * Parameters
- * c.task: the task (`"easy"`, `"medium"`, or `"hard"`)
- * c.task_length: the number of ids to return
- * c.task_f: the number of positive examples to show, per 100 examples
- */
 function sampleImages(){
-  // sample image ids
-  num_positive_images_task = Math.round(c.task_f*c.parameters.task_length.value/100);
-  num_positive_images_all  = c.links[c.task].positive.count;
-  num_negative_images_task = c.parameters.task_length.value - num_positive_images_task;
-  num_negative_images_all  = c.links[c.task].negative.count;
-  positive_images = _.sample(
-    Array.apply(null, {length: num_positive_images_all}).map(Number.call, Number),
-    num_positive_images_task 
-  );
-  negative_images = _.sample(
-    Array.apply(null, {length: num_negative_images_all}).map(Number.call, Number),
-    num_negative_images_task 
-  );
+  console.log("sampleImages called");
+  // TODO does not necessarily account for n_tasks
 
-  // populate image ids and shuffle them
-  // image ids are formatted like `negative-0`
-  ids = [];
-  for (let i=0; i<positive_images.length; i++){
-    ids.push("{0}-{1}".format("positive", positive_images[i]));
-  }
-  for (let i=0; i<negative_images.length; i++){
-    ids.push("{0}-{1}".format("negative", negative_images[i]));
-  }
-  ids = _.shuffle(ids);
+  // shuffle available other images
+  otherSamples = randomPermutation(c.parameters.n_other.value);
 
-  return ids;
+  // extract subset that allows task length, n tasks, and n easy/medium/hard to work
+  otherSamples = otherSamples.slice(0,
+    c.parameters.task_length.value*c.parameters.n_tasks.value - 
+      c.parameters.n_easy.value - c.parameters.n_medium.value - c.parameters.n_hard.value);
+  otherEasy   = otherSamples.slice(0,
+    c.parameters.task_length.value - c.parameters.n_easy.value);
+  otherMedium = otherSamples.slice(otherEasy.length,
+    otherEasy.length + c.parameters.task_length.value - c.parameters.n_medium.value);
+  otherHard   = otherSamples.slice(otherMedium.length,
+    otherMedium.length + c.parameters.task_length.value - c.parameters.n_hard.value);
+
+  // set up exact image ids
+  c.samples = {
+    easy   : {
+      positive : randomPermutation(c.parameters.n_easy.value),
+      other : otherEasy
+    },
+    medium : {
+      positive : randomPermutation(c.parameters.n_medium.value),
+      other : otherMedium
+    },
+    hard   : {
+      positive : randomPermutation(c.parameters.n_hard.value),
+      other : otherHard
+    }
+  };
+
+  c.samples.easy.ids   = createIdsAndShuffle("easy", c.samples.easy.positive, c.samples.easy.other);
+  c.samples.medium.ids = createIdsAndShuffle("medium", c.samples.medium.positive, c.samples.medium.other);
+  c.samples.hard.ids   = createIdsAndShuffle("hard", c.samples.hard.positive, c.samples.hard.other);
 }
 
-function fetchImages(){
-  ids = sampleImages();
+function createIdsAndShuffle(task, posSamples, negSamples){
+  posIds = [];
+  for (let i=0; i<posSamples.length; i++){
+    posIds.push("{0}-{1}".format(task, posSamples[i]));
+  }
+  negIds = [];
+  for (let i=0; i<negSamples.length; i++){
+    posIds.push("{0}-{1}".format("other", negSamples[i]));
+  }
+  return _.shuffle(posIds.concat(negIds));
+}
 
-  // add imgs to panel
-  for (var i=0; i<ids.length; i++){
-    id     = ids[i];
-    tmp    = id.split("-");
-    class_ = tmp[0];
-    index  = tmp[1];
+function fetchImages(ids){
+  console.log("fetchImages called");
+  console.log("task: {0}".format(c.task));
+  for (let i=0; i<ids.length; i++){
+    var id = ids[i];
+    var tmp = id.split("-");
+    var kind = tmp[0];
+    var index = tmp[1];
     $( "#image_panel" ).append(
-      '<img id="{0}" class="image-hidden" src="{1}/{2}/{3}/{4}.jpg" height="100%" width="100%">'.format(id, c.data_url, c.task, class_, index)
+      '<img id="{0}" class="image-hidden" src="{1}/{2}/{3}.jpg" height="100%" width="100%">'.format(id, c.data_url, kind, index)
     );
   }
-
-  return ids;
 }
 
+// ------------------------------------------------------------------------------
+// Experiment logic
+
 function playImagesRsvp(ids){
+
   // create an array of `n` images
   // set a timer to fire every `t` milleseconds
   // when timer fires, change src of image
@@ -239,13 +252,14 @@ function playImagesTraditional(ids){
   // show first image
   nextIndex = 1;
   showImage(ids[0]);
+  // further logic is handled by processKeyTraditional
 }
 
 function cleanUpRsvp(){
     flushLog(log);
     clearImages();
     console.log("done");
-    prepareNextTask();
+    concludeTask();
 }
 
 function cleanUpTraditional(){
@@ -253,10 +267,10 @@ function cleanUpTraditional(){
     flushLog(log);
     clearImages();
     console.log("done");
-    prepareNextTask();
+    concludeTask();
 }
 
-function completeExperimentation(){
+function concludeExperimentation(){
   $("#btn_next").val("Done With Tasks");
   $(document).off("click", "#btn_next").on("click", "#btn_next", function() {
     window.location = "survey.html?uuid=" + c.uuid;
@@ -264,12 +278,16 @@ function completeExperimentation(){
   enableButton("btn_next");
 }
 
-function prepareNextTask(){
+/**
+ * Called at the end of play. Increments task/interface indices and changes behavior appropriately.
+ */
+function concludeTask(){
+  console.log("concludeTask called");
   if (c.task_index == (c.task_list.length - 1)){
     // done with this task.
     if (c.interface_index == (c.interface_list.length - 1)){
       // done with everything.
-      completeExperimentation();
+      concludeExperimentation();
       return;
     } else {
       // next interface
@@ -283,7 +301,21 @@ function prepareNextTask(){
     c.task_index += 1;
     c.task = c.task_list[c.task_order[c.task_index]].name;
   }
+  console.log("task changed to {0}".format(c.task));
   enableButton("btn_next");
+}
+
+function prepareInterface(){
+  console.log("prepareInterface called");
+
+  // interface type
+  if (c.interface_index === 0){
+    $("#interface_type").text("A");
+  } else {
+    $("#interface_type").text("B");
+  }
+  // resample images
+  sampleImages();
 }
 
 function showImage(id){
@@ -301,7 +333,7 @@ function showImage(id){
 // Handle user input
 
 $(document).keypress(function(evt){
-  evt.preventDefault();
+  //evt.preventDefault();
   timestamp = Date.now();
   if (c.interface == "rsvp"){
     processKeyRsvp(evt, timestamp);
@@ -333,7 +365,7 @@ function processKeyTraditional(evt, timestamp){
         // show next picture :)
         currentIndex = nextIndex;
         nextIndex += 1;
-        showImage(ids[currentIndex]);
+        showImage(c.samples[c.task].ids[currentIndex]);
       }
     }
   }
@@ -382,3 +414,11 @@ function randomId(){
           return v.toString(16);
   });
 }
+
+/**
+ * Random permutation of the numbers 0 thru n, exclusive
+ */
+function randomPermutation(n){
+  return _.shuffle(Array.apply(null, {length: n}).map(Number.call, Number));
+}
+
