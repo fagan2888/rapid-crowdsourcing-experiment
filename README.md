@@ -4,7 +4,7 @@ Reproducing experiments from ["Embracing Error to Enable Rapid Crowdsourcing"](h
 2016).
 
 Video url
-- todo
+- https://youtu.be/JPSwv70TYw4
 
 Experiment implementation url
 - web.mit.edu/micahs/www/rsvp/index.html 
