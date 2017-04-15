@@ -387,7 +387,7 @@ function pushLog(timestamp, uuid, interface_, task, source, id, value){
 }
 
 function flushLog(log){
-  if (!c.parameters.testing){
+  if (!c.parameters.testing.value){
     sendRapidCrowdsourcingLog(JSON.stringify(log));
   } else {
     sendRapidCrowdsourcingLogFake(JSON.stringify(log));
