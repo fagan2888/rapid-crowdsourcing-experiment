@@ -46,7 +46,7 @@ function initialize(){
     task_t_end      : { value: undefined, default: 1500,      parser: parseInt }, // ms to wait after last image before cleaning up (rsvp only)
     task_length     : { value: undefined, default: 240,       parser: parseInt }, // number of images in each task
     uuid_override   : { value: undefined, default: undefined, parser: String },   // override for user id
-    testing         : { value: undefined, default: false,     parser: (x) => x==="false" } // whether we are testing => don't write to real log
+    testing         : { value: undefined, default: false,     parser: (x) => x==="true" } // whether we are testing => don't write to real log
   };
 
   for (var obj in c.parameters){
