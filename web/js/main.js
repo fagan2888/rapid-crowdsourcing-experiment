@@ -87,7 +87,8 @@ function initialize(){
   c.interface         = c.interface_list[c.interface_order[c.interface_index]];
   c.task              = c.task_list[c.task_order[c.task_index]].name;
 
-  c.data_url          = "data/";
+  // root directory of data. exclude trailing '/'
+  c.data_url          = "https://s3.amazonaws.com/mit-micahs-rsvp-data";
 
   // user
   if (c.parameters.uuid_override.value) {
