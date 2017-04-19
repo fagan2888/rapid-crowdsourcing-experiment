@@ -215,7 +215,7 @@ function fetchImages(ids){
     var kind = tmp[0];
     var index = tmp[1];
     $( "#image_panel" ).append(
-      '<img id="{0}" class="image-hidden" src="{1}/{2}/{3}.jpg" height="100%" width="100%">'.format(id, c.data_url, kind, index)
+      `<div id="{0}" class="image-hidden bounding-box" style="background-image: url('{1}/{2}/{3}.jpg');"></div>`.format(id, c.data_url, kind, index)
     );
   }
 }

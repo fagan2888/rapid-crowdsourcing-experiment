@@ -7,7 +7,7 @@ Video url
 - https://youtu.be/JPSwv70TYw4
 
 Experiment implementation url
-- web.mit.edu/micahs/www/rsvp/index.html 
+- http://web.mit.edu/micahs/www/rsvp/index.html 
 
 How are tasks sequenced?
 - The order of interfaces (RSVP and traditional) is chosen randomly. The order of tasks
@@ -156,6 +156,8 @@ Summary
   - Used js poll from David Walsh
     (https://davidwalsh.name/javascript-polling)
   - Used kbd css from Stack Overflow css
+  - Used image scaling CSS from Thomas Guillory
+    (http://stackoverflow.com/a/10016640/2514228)
 
 [^1]: "We vary redundancy on all the concepts to from 1 to 10 workers to see its effects on
   precision and recall."
