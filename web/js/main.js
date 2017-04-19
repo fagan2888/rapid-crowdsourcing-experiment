@@ -116,7 +116,7 @@ function prepareTask(){
   }
 
   // labels
-  description = c.task_list[c.task_order[c.task_index]].description
+  description = c.task_list[c.task_order[c.task_index]].description;
   $(".positive-label").text(description);
   $(".negative-label").text(description);
 
@@ -133,8 +133,9 @@ function prepareTask(){
 
   fetchImages(c.samples[c.task].ids);
 
-  $(".bounding-box").waitForImages(function(){
-    console.log("images loaded");
+  $("#btn_play").val("loading images...");
+  $("#image_panel").waitForImages(function(){
+    $("#btn_play").val("Play");
     enableButton("btn_play");
   });
 }
