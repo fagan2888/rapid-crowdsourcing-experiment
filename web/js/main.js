@@ -140,7 +140,7 @@ $(document).on("click", "#btn_play", function(evt) {
 
   // add countdown animation :)
   // also allows images to load
-  myCountdown(4, function(){
+  myCountdown(10, function(){
     if (c.interface == "rsvp") {
       playImagesRsvp(c.samples[c.task].ids);
     } else {
@@ -386,7 +386,7 @@ function flushLog(log){
 }
 
 function clearImages(){
-  $( "#image_panel > img" ).remove();
+  $( "#image_panel > .bounding-box" ).remove();
 }
 
 function disableButton(id){
