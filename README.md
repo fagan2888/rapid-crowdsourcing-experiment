@@ -158,6 +158,8 @@ Summary
   - Used kbd css from Stack Overflow css
   - Used image scaling CSS from Thomas Guillory
     (http://stackoverflow.com/a/10016640/2514228)
+  - Used waitForImages jQuery extension from Alexander Dickson
+    (https://github.com/alexanderdickson/waitForImages)
 
 [^1]: "We vary redundancy on all the concepts to from 1 to 10 workers to see its effects on
   precision and recall."

@@ -59,7 +59,6 @@ function initialize(){
   }
 
   c.playing           = false;
-  c.links             = links;
   c.keys = {
     positive: { code: 74, character: 'j' },
     negative: { code: 70, character: 'f' }
@@ -133,6 +132,11 @@ function prepareTask(){
   }
 
   fetchImages(c.samples[c.task].ids);
+
+  $(".bounding-box").waitForImages(function(){
+    console.log("images loaded");
+    enableButton("btn_play");
+  });
 }
 
 $(document).on("click", "#btn_play", function(evt) {
@@ -140,7 +144,7 @@ $(document).on("click", "#btn_play", function(evt) {
 
   // add countdown animation :)
   // also allows images to load
-  myCountdown(10, function(){
+  myCountdown(4, function(){
     if (c.interface == "rsvp") {
       playImagesRsvp(c.samples[c.task].ids);
     } else {
@@ -152,7 +156,6 @@ $(document).on("click", "#btn_play", function(evt) {
 $(document).on("click", "#btn_next", function(evt) {
   disableButton("btn_next");
   prepareTask();
-  enableButton("btn_play");
 });
 
 // ------------------------------------------------------------------------------
