@@ -51,17 +51,6 @@ body {
   display: block;
 }
 
-#image_panel > img {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-}
-.image-hidden {
-  visibility: hidden;
-}
-.image-visible {
-  visibility: visible;
-}
 .bounding-box {
   background-size: contain;
   position: absolute;
@@ -69,6 +58,7 @@ body {
   background-repeat: no-repeat;
   height: 100%;
   width: 100%;
+  display: none;
 }
 .btn-disabled {
   opacity: 0.6;

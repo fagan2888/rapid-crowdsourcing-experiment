@@ -322,9 +322,9 @@ function prepareInterface(){
 
 function showImage(id){
   if (lastId){
-    $( "#" + lastId).removeClass("image-visible").addClass("image-hidden");
+    $( "#" + lastId).toggle(false);
   }
-  $( "#" + id).removeClass("image-hidden").addClass("image-visible");
+  $( "#" + id).toggle(true);
   timestamp = Date.now();
   lastId = id;
   pushLog(timestamp, c.uuid, c.interface, c.task, "image", id, "");
