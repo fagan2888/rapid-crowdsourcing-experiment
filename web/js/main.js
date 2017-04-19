@@ -135,7 +135,11 @@ function prepareTask(){
   fetchImages(c.samples[c.task].ids);
 
   $("#btn_play").val("loading images...");
+  $("#image_panel").append(
+    '<div id="loading" class="loader"></div>'
+  );
   $("#image_panel").waitForImages(function(){
+    $("#loading").remove();
     $("#btn_play").val("Play");
     enableButton("btn_play");
   }, function(loaded, total, success){
