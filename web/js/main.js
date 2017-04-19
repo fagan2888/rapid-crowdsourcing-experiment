@@ -137,7 +137,11 @@ function prepareTask(){
   $("#image_panel").waitForImages(function(){
     $("#btn_play").val("Play");
     enableButton("btn_play");
-  });
+  }, function(loaded, total, success){
+    // noop
+  },
+  true
+  );
 }
 
 $(document).on("click", "#btn_play", function(evt) {
