@@ -269,10 +269,10 @@ function cleanUpRsvp(){
 }
 
 function cleanUpTraditional(){
-    c.playing = false;
-    flushLog(log);
-    clearImages();
-    concludeTask();
+  c.playing = false;
+  flushLog(log);
+  clearImages();
+  concludeTask();
 }
 
 function concludeExperimentation(){
@@ -389,7 +389,7 @@ function pushLog(timestamp, uuid, interface_, task, source, id, value){
 
 function flushLog(log){
   if (!c.parameters.testing.value){
-    sendRapidCrowdsourcingLog(JSON.stringify(log));
+    sendRapidCrowdsourcingLog2(JSON.stringify(log));
   } else {
     sendRapidCrowdsourcingLogFake(JSON.stringify(log));
   }
