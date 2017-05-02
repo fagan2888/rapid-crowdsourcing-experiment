@@ -248,7 +248,6 @@ function playImagesRsvp(ids){
     showImage(ids[i]);
     i += 1;
     if (i==c.parameters.task_length.value){
-      c.playing = false;
       setTimeout(cleanUpRsvp, c.parameters.task_t_end.value);
     }
   }, c.parameters.task_length.value, c.parameters.task_t.value);
@@ -263,9 +262,10 @@ function playImagesTraditional(ids){
 }
 
 function cleanUpRsvp(){
-    flushLog(log);
-    clearImages();
-    concludeTask();
+  c.playing = false;
+  flushLog(log);
+  clearImages();
+  concludeTask();
 }
 
 function cleanUpTraditional(){
@@ -345,8 +345,8 @@ $(document).keypress(function(evt){
 
 function processKeyRsvp(evt, timestamp){
   if (c.playing){
-    value = evt.originalEvent.keyCode;
-    if (value == c.keys.positive.code) {
+    value = evt.originalEvent.key;
+    if (value == c.keys.positive.character) {
       pushLog(timestamp, c.uuid, c.interface, c.task, "key", "", value);
     }
   }
