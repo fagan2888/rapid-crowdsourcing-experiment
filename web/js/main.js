@@ -63,6 +63,7 @@ function initialize(){
     positive: { code: 74, character: 'j' },
     negative: { code: 70, character: 'f' }
   };
+  c.reminder_flash_t  = 25;
 
 
   c.interface_list    = ["traditional", "rsvp"];
@@ -347,6 +348,9 @@ function processKeyRsvp(evt, timestamp){
   if (c.playing){
     value = evt.originalEvent.key;
     if (value == c.keys.positive.character) {
+      // flash to indicate key was pressed
+      $(".positive-action-reminder").fadeOut(c.reminder_flash_t).fadeIn(c.reminder_flash_t);
+
       pushLog(timestamp, c.uuid, c.interface, c.task, "key", "", value);
     }
   }
